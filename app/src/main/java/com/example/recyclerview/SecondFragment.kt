@@ -1,16 +1,18 @@
 package com.example.recyclerview
 
 import android.os.Bundle
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.Button
 import android.widget.LinearLayout
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 
 /**
  * A simple [Fragment] subclass as the second destination in the navigation.
@@ -19,28 +21,41 @@ class SecondFragment : Fragment() {
 
     lateinit var miRecyclerView:RecyclerView
 
-    override fun onCreateView(
-            inflater: LayoutInflater, container: ViewGroup?,
-            savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         val rootView= inflater.inflate(R.layout.fragment_second, container, false)
-        val listaJuegos:MutableList<Juego> =cargarJuegos()
+
         miRecyclerView=rootView.findViewById(R.id.frag2_recyclerView)
         miRecyclerView.layoutManager=LinearLayoutManager(activity)
-        miRecyclerView.adapter=Adaptador(listaJuegos)
+        miRecyclerView.adapter=Adaptador((activity as MainActivity).miViewModel.listaJuegos,(activity as MainActivity))
+
+
+        rootView.findViewById<FloatingActionButton>(R.id.fab).setOnClickListener {
+            findNavController().navigate(R.id.action_SecondFragment_to_thirdFragment)
+        }
+
+        activity?.setTitle("Lista de juegos")
+        (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        setHasOptionsMenu(true)
 
         return rootView
     }
 
-    fun cargarJuegos():MutableList<Juego>{
-        val lista:MutableList<Juego> = mutableListOf()
-        lista.add(Juego("Oca",4,"Conseguir llegar a la meta"))
-        lista.add(Juego("parchis",4,"Conseguir llevar tus cuatro fichas a casa sin que el resto te coma"))
-        lista.add(Juego("hotel",4,"Ir comprando terrenos, edificios y cobrando al resto de jugadores hasta que no puedan pagarte"))
-        lista.add(Juego("sushi go",4,"Durante tres rondas ir consiguiendo puntos para ganar la mayor puntuación"))
-
-        return lista
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.menu_main, menu)
     }
 
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        super.onPrepareOptionsMenu(menu)
+        menu.findItem(R.id.action_delete).isVisible=false
+        menu.findItem(R.id.action_save).isVisible=false
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId){
+            R.id.action_add-> findNavController().navigate(R.id.action_SecondFragment_to_thirdFragment)
+        }
+        return true
+    }
 }
